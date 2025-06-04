@@ -1,0 +1,12 @@
+[
+  { "id": 1, "type": "retailer", "name": "george", "company": "Levi's", "number": "+961-71-123456", "email": "george.levis@mail.com", "address": "12 Main St, Beirut" },
+  { "id": 2, "type": "retailer", "name": "samir", "company": "Wrangler", "number": "+961-71-654321", "email": "samir.wrangler@mail.com", "address": "34 Cedar Rd, Tripoli" },
+  { "id": 3, "type": "retailer", "name": "nadim", "company": "Lee", "number": "+961-76-112233", "email": "nadim.lee@mail.com", "address": "56 Pine Ave, Sidon" },
+  { "id": 4, "type": "retailer", "name": "elias", "company": "Dockers", "number": "+961-70-445566", "email": "elias.dockers@mail.com", "address": "78 Oak St, Zahle" },
+  { "id": 5, "type": "retailer", "name": "marwan", "company": "Calvin Klein", "number": "+961-78-998877", "email": "marwan.ck@mail.com", "address": "90 Maple Rd, Jounieh" },
+  { "id": 6, "type": "retailer", "name": "fadi", "company": "Tommy Hilfiger", "number": "+961-79-223344", "email": "fadi.tommy@mail.com", "address": "21 Elm St, Tyre" },
+  { "id": 7, "type": "retailer", "name": "rita", "company": "Gap", "number": "+961-71-334455", "email": "rita.gap@mail.com", "address": "43 Palm St, Batroun" },
+  { "id": 8, "type": "retailer", "name": "maya", "company": "Old Navy", "number": "+961-76-556677", "email": "maya.oldnavy@mail.com", "address": "65 Olive Rd, Byblos" },
+  { "id": 9, "type": "retailer", "name": "tony", "company": "H&M", "number": "+961-70-778899", "email": "tony.hm@mail.com", "addres": "87 Cedar St, Saida" },
+  { "id": 10, "type": "retailer", "name": "sara", "company": "Uniqlo", "number": "+961-78-112244", "email": "sara.uniqlo@mail.com", "address": "109 Pine Rd, Zgharta" }
+]
