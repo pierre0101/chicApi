@@ -1,0 +1,8 @@
+[
+  { "id": 1, "type": "Blazers", "image": "image1.jpg" },
+  { "id": 2, "type": "Shoes", "image": "shoes.jpg" },
+  { "id": 3, "type": "Dresses", "image": "image3.webp" },
+  { "id": 4, "type": "Jewelry", "image": "jewelry.jpg" },
+  { "id": 5, "type": "coats", "image": "coat.jpg" },
+  { "id": 6, "type": "pants", "image": "pants.jpg" }
+]
