@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = ['https://chicapi.onrender.com'];
+const allowedOrigins = ['https://chic-lhtw.onrender.com/'];
 // const subnetRegex = /^http?:\/\/192\.168\.212\.\d{1,3}(:\d+)?$/;
 
 app.use(cors({
