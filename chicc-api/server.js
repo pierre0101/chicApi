@@ -42,12 +42,11 @@ app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = ['https://chic-lhtw.onrender.com'];
-// const subnetRegex = /^http?:\/\/192\.168\.212\.\d{1,3}(:\d+)?$/;
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || subnetRegex.test(origin)) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`Not allowed by CORS: ${origin}`));
