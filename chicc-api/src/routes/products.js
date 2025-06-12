@@ -314,4 +314,36 @@ router.post('/sales/checkout', auth, (req, res) => {
   }
 });
 
+/** Utility: load and cache every category JSON once at boot */
+let PRODUCTS = [];
+
+function loadAllProducts() {
+  const dataDir = path.join(__dirname, '..', 'data');
+  const files   = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'));
+
+  PRODUCTS = files.flatMap((file) => {
+    const raw = fs.readFileSync(path.join(dataDir, file), 'utf8');
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      console.error(`❌  Invalid JSON in ${file}`);
+      return [];
+    }
+  });
+}
+
+loadAllProducts();
+
+/* ─────────────  GET /api/v1/products/barcode/:code  ───────────── */
+router.get('/barcode/:code', (req, res) => {
+  const { code } = req.params;
+
+  const product = PRODUCTS.find((p) => p.barcode === code);
+
+  if (!product) {
+    return res.status(404).json({ message: 'Product not found' });
+  }
+
+  res.json(product);
+});
 module.exports = router;
