@@ -354,5 +354,4 @@ router.get('/barcode/:code', (req, res) => {
   }
 });
 
-
 module.exports = router;
