@@ -336,14 +336,23 @@ loadAllProducts();
 
 /* ─────────────  GET /api/v1/products/barcode/:code  ───────────── */
 router.get('/barcode/:code', (req, res) => {
-  const { code } = req.params;
+  try {
+    const barcode = req.params.code;
+    const files = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'sales.json');
 
-  const product = PRODUCTS.find((p) => p.barcode === code);
+    for (const file of files) {
+      const items = loadJson(file);
+      const found = items.find(item => item.barcode === barcode);
+      if (found) {
+        return res.json(found);
+      }
+    }
 
-  if (!product) {
-    return res.status(404).json({ message: 'Product not found' });
+    return res.status(404).json({ message: 'Product not found by barcode' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Error searching product by barcode', error: err.message });
   }
-
-  res.json(product);
 });
+
+
 module.exports = router;
