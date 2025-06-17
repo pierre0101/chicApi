@@ -7,7 +7,8 @@
     "price": 100,
     "description": "Comfortable and stylish Nike shoes.",
     "quantity": 20,
-    "barcode": "shoes-16-823470"
+    "barcode": "shoes-16-823470",
+    "section": "male"
   },
   {
     "id": 21,
@@ -17,7 +18,8 @@
     "price": 200,
     "description": "High-performance Adidas shoes.",
     "quantity": 15,
-    "barcode": "shoes-21-803372"
+    "barcode": "shoes-21-803372",
+    "section": "male"
   },
   {
     "id": 26,
@@ -27,7 +29,8 @@
     "price": 300,
     "description": "Durable and trendy Puma shoes.",
     "quantity": 10,
-    "barcode": "shoes-26-690323"
+    "barcode": "shoes-26-690323",
+    "section": "male"
   },
   {
     "id": 30,
@@ -37,7 +40,8 @@
     "price": 100,
     "description": "Classic Reebok shoes for everyday wear.",
     "quantity": 18,
-    "barcode": "shoes-30-462419"
+    "barcode": "shoes-30-462419",
+    "section": "male"
   },
   {
     "id": 34,
@@ -47,7 +51,8 @@
     "price": 200,
     "description": "Sporty Under Armour shoes for active lifestyle.",
     "quantity": 12,
-    "barcode": "shoes-34-370688"
+    "barcode": "shoes-34-370688",
+    "section": "male"
   },
   {
     "id": 38,
@@ -57,7 +62,8 @@
     "price": 300,
     "description": "Comfortable and supportive New Balance shoes.",
     "quantity": 14,
-    "barcode": "shoes-38-930988"
+    "barcode": "shoes-38-930988",
+    "section": "male"
   },
   {
     "id": 42,
@@ -67,7 +73,8 @@
     "price": 300,
     "description": "High-quality Asics shoes for running.",
     "quantity": 16,
-    "barcode": "shoes-42-260805"
+    "barcode": "shoes-42-260805",
+    "section": "male"
   },
   {
     "id": 45,
@@ -77,7 +84,8 @@
     "price": 300,
     "description": "Stylish Converse shoes for casual wear.",
     "quantity": 11,
-    "barcode": "shoes-45-976035"
+    "barcode": "shoes-45-976035",
+    "section": "male"
   },
   {
     "id": 48,
@@ -87,7 +95,8 @@
     "price": 300,
     "description": "Trendy Vans shoes for skateboarding.",
     "quantity": 13,
-    "barcode": "shoes-48-558130"
+    "barcode": "shoes-48-558130",
+    "section": "male"
   },
   {
     "id": 51,
@@ -97,6 +106,7 @@
     "price": 300,
     "description": "Comfortable Skechers shoes for walking.",
     "quantity": 17,
-    "barcode": "shoes-51-980641"
+    "barcode": "shoes-51-980641",
+    "section": "male"
   }
 ]

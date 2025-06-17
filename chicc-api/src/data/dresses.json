@@ -7,7 +7,8 @@
     "price": 100,
     "description": "Elegant Gucci dress for special occasions.",
     "quantity": 10,
-    "barcode": "dress-13-846553"
+    "barcode": "dress-13-846553",
+    "section": "woman"
   },
   {
     "id": 18,
@@ -17,7 +18,8 @@
     "price": 200,
     "description": "Stylish Versace dress for formal events.",
     "quantity": 7,
-    "barcode": "dress-18-518342"
+    "barcode": "dress-18-518342",
+    "section": "woman"
   },
   {
     "id": 23,
@@ -27,7 +29,8 @@
     "price": 300,
     "description": "Luxurious Prada dress for high-end fashion.",
     "quantity": 5,
-    "barcode": "dress-23-852019"
+    "barcode": "dress-23-852019",
+    "section": "woman"
   },
   {
     "id": 28,
@@ -37,7 +40,8 @@
     "price": 100,
     "description": "Classic Polo dress for casual wear.",
     "quantity": 12,
-    "barcode": "dress-28-453824"
+    "barcode": "dress-28-453824",
+    "section": "woman"
   },
   {
     "id": 32,
@@ -47,7 +51,8 @@
     "price": 200,
     "description": "Designer Louis Vuitton dress for a chic look.",
     "quantity": 6,
-    "barcode": "dress-32-570293"
+    "barcode": "dress-32-570293",
+    "section": "woman"
   },
   {
     "id": 36,
@@ -57,7 +62,8 @@
     "price": 300,
     "description": "Sophisticated Giorgio Armani dress for formal occasions.",
     "quantity": 4,
-    "barcode": "dress-36-854141"
+    "barcode": "dress-36-854141",
+    "section": "woman"
   },
   {
     "id": 40,
@@ -67,6 +73,7 @@
     "price": 300,
     "description": "Fashionable Armani Exchange dress for trendy style.",
     "quantity": 9,
-    "barcode": "dress-40-393209"
+    "barcode": "dress-40-393209",
+    "section": "woman"
   }
 ]
