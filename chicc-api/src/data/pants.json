@@ -7,7 +7,8 @@
     "price": 50,
     "description": "Classic Levi's pants for everyday wear.",
     "quantity": 20,
-    "barcode": "pants-15-634283"
+    "barcode": "pants-15-634283",
+    "section": "male"
   },
   {
     "id": 20,
@@ -17,9 +18,9 @@
     "price": 60,
     "description": "Durable Wrangler pants for outdoor activities.",
     "quantity": 15,
-    "barcode": "pants-20-503995"},
-    
-  
+    "barcode": "pants-20-503995",
+    "section": "male"
+  },
   {
     "id": 25,
     "type": "pants",
@@ -28,7 +29,8 @@
     "price": 55,
     "description": "Comfortable Lee pants for casual wear.",
     "quantity": 18,
-    "barcode": "pants-25-516901"
+    "barcode": "pants-25-516901",
+    "section": "male"
   },
   {
     "id": 29,
@@ -38,7 +40,8 @@
     "price": 70,
     "description": "Stylish Dockers pants for formal occasions.",
     "quantity": 10,
-    "barcode": "pants-29-202490"
+    "barcode": "pants-29-202490",
+    "section": "male"
   },
   {
     "id": 33,
@@ -48,7 +51,8 @@
     "price": 80,
     "description": "Designer Calvin Klein pants for a chic look.",
     "quantity": 12,
-    "barcode": "pants-33-934773"
+    "barcode": "pants-33-934773",
+    "section": "male"
   },
   {
     "id": 37,
@@ -58,8 +62,9 @@
     "price": 90,
     "description": "Trendy Tommy Hilfiger pants for casual wear.",
     "quantity": 9,
-    "barcode": "pants-37-487483"},
-    
+    "barcode": "pants-37-487483",
+    "section": "male"
+  },
   {
     "id": 41,
     "type": "pants",
@@ -68,8 +73,10 @@
     "price": 65,
     "description": "Comfortable Gap pants for everyday wear.",
     "quantity": 14,
-    "barcode": "pants-41-991960"},
-    {
+    "barcode": "pants-41-991960",
+    "section": "male"
+  },
+  {
     "id": 44,
     "type": "pants",
     "brand": "Old Navy",
@@ -77,8 +84,9 @@
     "price": 50,
     "description": "Affordable Old Navy pants for casual wear.",
     "quantity": 11,
-    "barcode": "pants-44-605346"},
-    
+    "barcode": "pants-44-605346",
+    "section": "male"
+  },
   {
     "id": 47,
     "type": "pants",
@@ -87,8 +95,9 @@
     "price": 40,
     "description": "Trendy H&M pants for a fashionable look.",
     "quantity": 13,
-    "barcode": "pants-47-430836"
-      },
+    "barcode": "pants-47-430836",
+    "section": "male"
+  },
   {
     "id": 50,
     "type": "pants",
@@ -97,6 +106,7 @@
     "price": 60,
     "description": "Comfortable Uniqlo pants for everyday wear.",
     "quantity": 16,
-    "barcode": "pants-50-248966"
+    "barcode": "pants-50-248966",
+    "section": "male"
   }
 ]

@@ -7,8 +7,8 @@
     "price": 150,
     "description": "Warm and durable North Face coat.",
     "quantity": 10,
-    "barcode": "coats-12-808271"
-
+    "barcode": "coats-12-808271",
+    "section": "male"
   },
   {
     "id": 17,
@@ -18,8 +18,8 @@
     "price": 200,
     "description": "High-quality Columbia coat for cold weather.",
     "quantity": 8,
-    "barcode": "coats-17-157124"
-   
+    "barcode": "coats-17-157124",
+    "section": "male"
   },
   {
     "id": 22,
@@ -29,8 +29,8 @@
     "price": 250,
     "description": "Eco-friendly Patagonia coat for outdoor activities.",
     "quantity": 7,
-    "barcode": "coats-22-182741"
-    
+    "barcode": "coats-22-182741",
+    "section": "male"
   },
   {
     "id": 27,
@@ -40,8 +40,8 @@
     "price": 300,
     "description": "Premium Canada Goose coat for extreme cold.",
     "quantity": 5,
-    "barcode": "coats-27-805744"
- 
+    "barcode": "coats-27-805744",
+    "section": "male"
   },
   {
     "id": 31,
@@ -51,7 +51,8 @@
     "price": 350,
     "description": "High-performance Arc'teryx coat for outdoor adventures.",
     "quantity": 6,
-    "barcode": "coats-31-789260"
+    "barcode": "coats-31-789260",
+    "section": "male"
   },
   {
     "id": 35,
@@ -61,9 +62,9 @@
     "price": 200,
     "description": "Reliable Marmot coat for winter wear.",
     "quantity": 9,
-    "barcode": "coats-35-143998" },
-   
-  
+    "barcode": "coats-35-143998",
+    "section": "male"
+  },
   {
     "id": 39,
     "type": "coats",
@@ -72,7 +73,8 @@
     "price": 250,
     "description": "Waterproof Helly Hansen coat for rainy weather.",
     "quantity": 8,
-    "barcode": "coats-39-117421"
+    "barcode": "coats-39-117421",
+    "section": "male"
   },
   {
     "id": 43,
@@ -82,7 +84,8 @@
     "price": 300,
     "description": "Durable Mountain Hardwear coat for outdoor activities.",
     "quantity": 7,
-    "barcode": "coats-43-398220"
+    "barcode": "coats-43-398220",
+    "section": "male"
   },
   {
     "id": 46,
@@ -92,7 +95,8 @@
     "price": 150,
     "description": "Classic Eddie Bauer coat for everyday wear.",
     "quantity": 12,
-    "barcode": "coats-46-835236"
+    "barcode": "coats-46-835236",
+    "section": "male"
   },
   {
     "id": 49,
@@ -102,6 +106,7 @@
     "price": 200,
     "description": "Versatile REI Co-op coat for outdoor adventures.",
     "quantity": 11,
-    "barcode": "coats-49-588944"
+    "barcode": "coats-49-588944",
+    "section": "male"
   }
 ]
