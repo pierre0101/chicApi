@@ -11,6 +11,27 @@ const router = express.Router();
 const dataDir = path.join(__dirname, '../data');
 const imagesDir = path.join(__dirname, '../../public');
 
+
+
+
+const express = require('express');
+const router = express.Router();
+const {
+  getFilteredProducts,
+  getProductById
+} = require('../controllers/productController');
+
+router.get('/', getFilteredProducts);        // e.g. /api/products?section=women
+router.get('/:id', getProductById);          // e.g. /api/products/1234
+
+module.exports = router;
+
+
+
+
+
+
+
 // Ensure images directory exists (for image uploads)
 if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true });

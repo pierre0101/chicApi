@@ -12,6 +12,12 @@ const logger = require('./src/config/logger');
 const connectDB = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
 
+
+const productRoutes = require('./routes/products');
+
+
+
+
 // Express routes
 const authRoutes         = require('./src/routes/auth');
 const productRoutes      = require('./src/routes/products');
