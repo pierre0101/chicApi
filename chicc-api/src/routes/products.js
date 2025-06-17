@@ -14,8 +14,8 @@ const imagesDir = path.join(__dirname, '../../public');
 
 
 
-const express = require('express');
-const router = express.Router();
+// Ensure data directory exists
+const productsDir = path.join(dataDir, 'products');
 const {
   getFilteredProducts,
   getProductById
