@@ -1,4 +1,4 @@
-// server.js
+// /server.js
 require('dotenv').config();
 
 const express      = require('express');
@@ -13,110 +13,84 @@ const logger       = require('./src/config/logger');
 const connectDB    = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
 
-/* ─────────── helper: always hand Express a function ─────────── */
-function asRouter(mod, label) {
-  if (typeof mod === 'function') return mod;                   // Router()
-  if (mod && typeof mod.router === 'function') return mod.router;
+// ─── Express routes ──────────────────────────────────────────────────────────
+const authRoutes = require('./src/routes/auth');
+const productRoutes = require('./src/routes/products');
+const wishlistRoutes = require('./src/routes/wishlist');
+const usersRouter = require('./src/routes/users');
+const adminRoutes = require('./src/routes/admin');
+const salesRouter = require('./src/routes/sales');
+const supportRouter = require('./src/routes/support');
+const liveChatUserRouter = require('./src/routes/liveChatUser');
 
-  logger.warn(`${label} is not a router – substituted empty middleware`);
-  return (req, res, next) => next();
-}
-
-/* ─────────── route imports (all via helper) ─────────── */
-const authRoutes         = asRouter(require('./src/routes/auth'),         'authRoutes');
-const productRoutes      = asRouter(require('./src/routes/products'),     'productRoutes');
-const wishlistRoutes     = asRouter(require('./src/routes/wishlist'),     'wishlistRoutes');
-const usersRouter        = asRouter(require('./src/routes/users'),        'usersRouter');
-const adminRoutes        = asRouter(require('./src/routes/admin'),        'adminRoutes');
-const salesRouter        = asRouter(require('./src/routes/sales'),        'salesRouter');
-const supportRouter      = asRouter(require('./src/routes/support'),      'supportRouter');
-const liveChatUserRouter = asRouter(require('./src/routes/liveChatUser'), 'liveChatUserRouter');
-
-/* ─────────── WebSocket attach ─────────── */
+// WebSocket
 const { setupWebSocket } = require('./src/websocket');
 
 const app    = express();
 const server = http.createServer(app);
+
+// Attach WebSocket server
 setupWebSocket(server);
 
-/* ─────────── DB connect ─────────── */
+// ─── MongoDB ─────────────────────────────────────────────────────────────────
 connectDB(process.env.MONGODB_URI);
 
-/* ─────────── security & parsers ─────── */
-// Disable Helmet’s default CORP so we can override
-app.use(
-  helmet({
-    crossOriginResourcePolicy: false
-  })
-);
-
+// ─── Middleware ──────────────────────────────────────────────────────────────
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-/* ─────────── CORS ─────────── */
 const allowedOrigins = [
-  'https://chicapi.onrender.com',
   'http://localhost:3000',
-  'http://192.168.93.19:3000'
+  'http://192.168.16.110:3000',
+  'https://chic-lhtw.onrender.com',
+  'http://192.168.1.42:3000'
 ];
-const subnetRegex    = /^https?:\/\/192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$/;
+
+// Accept a whole 192.168.16.* subnet during development
+const lanRegex = /^http:\/\/192\.168\.16\.\d+:3000$/;
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (
-        allowedOrigins.includes(origin) ||
-        subnetRegex.test(origin)
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Not allowed by CORS: ${origin}`));
+    origin(origin, cb) {
+      if (!origin) return cb(null, true);               // non-browser tools
+      if (allowedOrigins.includes(origin) || lanRegex.test(origin)) {
+        return cb(null, true);
       }
+      logger.error(`CORS blocked: ${origin}`);
+      cb(new Error(`Not allowed by CORS: ${origin}`));
     },
-    credentials: true,
+    credentials: true,                                  // enable cookies / auth
   })
 );
 
-/* ─────────── static images ─────────── */
-// Serve everything in /public/images under /api/v1/products/images
-// with CORS and Cross-Origin-Resource-Policy headers
+// ─── Static images ───────────────────────────────────────────────────────────
 app.use(
-  '/api/v1/products/images',
-  // 1) Allow cross-site XHR/fetch
-  (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    next();
-  },
-  // 2) Permit browsers to embed the resource cross-origin
-  (req, res, next) => {
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    next();
-  },
-  // 3) Serve the static file
-  express.static(path.join(__dirname, 'public', 'images'))
+  '/images',
+  express.static(path.join(__dirname, 'public'), {
+    maxAge: '30d',
+    setHeaders(res) {
+      // Allow any site to embed product images (optional: tighten if needed)
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    },
+  })
 );
 
-/* ─────────── routes & error handling ─────────── */
-app.use('/api/v1/auth',         authRoutes);
-app.use('/api/v1/products',     productRoutes);
-app.use('/api/v1/wishlist',     wishlistRoutes);
-app.use('/api/v1/users',        usersRouter);
-app.use('/api/v1/admin',        adminRoutes);
-app.use('/api/v1/sales',        salesRouter);
-app.use('/api/v1/support',      supportRouter);
-app.use('/api/v1/liveChatUser', liveChatUserRouter);
+// ─── API routes ──────────────────────────────────────────────────────────────
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/wishlist', wishlistRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/sales', salesRouter);
+app.use('/api/v1/support', supportRouter);
+app.use('/api/livechat', liveChatUserRouter);
 
-// single-page app fallback
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// final error handler
+// ─── Error handler ───────────────────────────────────────────────────────────
 app.use(errorHandler);
 
-/* ─────────── listen ─────────── */
+// ─── Start server ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   logger.info(

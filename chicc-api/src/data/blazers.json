@@ -106,16 +106,18 @@
     "price": 140,
     "description": "Casual J.Crew blazer for everyday wear.",
     "quantity": 13,
-    "barcode": "blazer-10-657323"
+    "barcode": "blazer-10-657323",
+    "section": "male"
   },
   {
-    "type": "",
+    "type": "blazer",
     "brand": "hugo",
     "image": "/blazer.jpg",
     "price": 500,
     "quantity": 100,
     "description": "test data",
     "id": 11,
-    "barcode": "blazers-11-423390"
+    "barcode": "blazers-11-423390",
+    "section": "male"
   }
 ]
