@@ -7,7 +7,8 @@
     "price": 200,
     "description": "Classic Hugo Boss blazer for formal occasions.",
     "quantity": 10,
-    "barcode": "blazer-1-597886"
+    "barcode": "blazer-1-597886",
+    "section":"women"
   },
   {
     "id": 2,
@@ -17,7 +18,8 @@
     "price": 250,
     "description": "Elegant Armani blazer for business meetings.",
     "quantity": 8,
-    "barcode": "blazer-2-456300"
+    "barcode": "blazer-2-456300",
+    "section":"kids"
   },
   {
     "id": 3,
@@ -27,7 +29,8 @@
     "price": 180,
     "description": "Stylish Ralph Lauren blazer for a modern look.",
     "quantity": 12,
-    "barcode": "blazer-3-491246"
+    "barcode": "blazer-3-491246",
+    "section":"men"
   },
   {
     "id": 4,
@@ -37,7 +40,8 @@
     "price": 160,
     "description": "Trendy Calvin Klein blazer for casual wear.",
     "quantity": 7,
-    "barcode": "blazer-4-204247"
+    "barcode": "blazer-4-204247",
+    "section":"kids"
   },
   {
     "id": 5,
@@ -47,7 +51,8 @@
     "price": 170,
     "description": "Versatile Tommy Hilfiger blazer for any occasion.",
     "quantity": 9,
-    "barcode": "blazer-5-550569"
+    "barcode": "blazer-5-550569",
+    "section":"women"
   },
   {
     "id": 6,
@@ -57,7 +62,8 @@
     "price": 120,
     "description": "Affordable Zara blazer for everyday style.",
     "quantity": 15,
-    "barcode": "blazer-6-169123"
+    "barcode": "blazer-6-169123",
+    "section":"women"
   },
   {
     "id": 7,
@@ -67,7 +73,8 @@
     "price": 350,
     "description": "Luxury Gucci blazer for high-end fashion.",
     "quantity": 5,
-    "barcode": "blazer-7-323720"
+    "barcode": "blazer-7-323720",
+    "section":"men"
   },
   {
     "id": 8,
@@ -77,7 +84,8 @@
     "price": 300,
     "description": "Premium Burberry blazer for a sophisticated look.",
     "quantity": 6,
-    "barcode": "blazer-8-277281"
+    "barcode": "blazer-8-277281",
+    "section":"men"
   },
   {
     "id": 9,
@@ -87,7 +95,8 @@
     "price": 220,
     "description": "Classic Brooks Brothers blazer for timeless style.",
     "quantity": 11,
-    "barcode": "blazer-9-432589"
+    "barcode": "blazer-9-432589",
+    "section":"women"
   },
   {
     "id": 10,

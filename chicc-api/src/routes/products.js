@@ -1,8 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const auth = require('../middleware/auth');
-const { checkRole } = require('../middleware/roles');
+const { auth, checkSectionAccess, checkRole } = require('../middleware/auth');
 const multer = require('multer');
 
 const router = express.Router();
@@ -10,6 +9,12 @@ const router = express.Router();
 // Define directories
 const dataDir = path.join(__dirname, '../data');
 const imagesDir = path.join(__dirname, '../../public');
+
+// 1) Serve static images so /images/<filename> works
+router.use(
+  '/images',
+  express.static(imagesDir)
+);
 
 // Ensure images directory exists (for image uploads)
 if (!fs.existsSync(imagesDir)) {
@@ -51,7 +56,10 @@ router.get('/test-auth', auth, (req, res) => {
 router.get('/types', (req, res) => {
   try {
     const files = fs.readdirSync(dataDir)
-      .filter(f => f.endsWith('.json') && !['products.json', 'sales.json', 'coupons.json'].includes(f));
+      .filter(f =>
+        f.endsWith('.json') &&
+        !['products.json', 'sales.json', 'coupons.json'].includes(f)
+      );
     const types = files.map(f => path.basename(f, '.json'));
     res.json(types);
   } catch (err) {
@@ -62,19 +70,20 @@ router.get('/types', (req, res) => {
 // 1) All products (all JSON files except products.json)
 router.get('/', (req, res) => {
   try {
-    const files = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'products.json');
+    const files = fs.readdirSync(dataDir)
+      .filter(f => f.endsWith('.json') && f !== 'products.json');
     let allProducts = [];
     let idCounter = 1;
 
     files.forEach(file => {
       const type = path.basename(file, '.json');
       const items = loadJson(file);
-
       if (Array.isArray(items)) {
         const itemsWithMeta = items.map(item => ({
-          id: item.id || idCounter++, // preserve id or assign new one
+          id: item.id || idCounter++,
           type,
-          ...item
+          ...item,
+          stock: item.quantity
         }));
         allProducts = allProducts.concat(itemsWithMeta);
       }
@@ -90,12 +99,13 @@ router.get('/', (req, res) => {
 router.get('/product/:id', (req, res) => {
   try {
     const id = Number(req.params.id);
-    const files = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'products.json');
+    const files = fs.readdirSync(dataDir)
+      .filter(f => f.endsWith('.json') && f !== 'products.json');
     for (const file of files) {
       const items = loadJson(file);
       const found = items.find(p => p.id === id);
       if (found) {
-        return res.json(found);
+        return res.json({ ...found, stock: found.quantity });
       }
     }
     res.status(404).json({ message: 'Product not found' });
@@ -118,13 +128,12 @@ router.get('/categories', (req, res) => {
 // 4) 3 random exclusives from all category files
 router.get('/exclusives', (req, res) => {
   try {
-    const files = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'products.json');
+    const files = fs.readdirSync(dataDir)
+      .filter(f => f.endsWith('.json') && f !== 'products.json');
     let allItems = [];
     files.forEach(file => {
       const items = loadJson(file);
-      if (Array.isArray(items)) {
-        allItems = allItems.concat(items);
-      }
+      if (Array.isArray(items)) allItems = allItems.concat(items);
     });
     const picked = allItems.sort(() => 0.5 - Math.random()).slice(0, 3);
     res.json(picked);
@@ -134,53 +143,60 @@ router.get('/exclusives', (req, res) => {
 });
 
 // 5) Admin-only: Add new product to category (with image upload)
-router.post('/:type/add', auth, checkRole('admin'), upload.single('image'), (req, res) => {
-  const { type } = req.params;
-  const file = `${type}.json`;
-  const fullPath = path.join(dataDir, file);
+router.post(
+  '/:type/add',
+  auth,
+  checkRole('admin'),
+  upload.single('image'),
+  (req, res) => {
+    const { type } = req.params;
+    const fileName = `${type}.json`;
+    const fullPath = path.join(dataDir, fileName);
 
-  if (!fs.existsSync(fullPath)) {
-    return res.status(404).json({ message: 'Category not found' });
-  }
-
-  try {
-    const products = loadJson(file);
-    const newProd = JSON.parse(req.body.data || '{}');
-
-    if (req.file) {
-      newProd.image = `/${req.file.filename}`;
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ message: 'Category not found' });
     }
 
-    newProd.id = products.length > 0 ? Math.max(...products.map(p => p.id || 0)) + 1 : 1;
+    try {
+      const products = loadJson(fileName);
+      const newProd = JSON.parse(req.body.data || '{}');
 
-    products.push(newProd);
-    saveJson(file, products);
+      if (req.file) {
+        newProd.image = req.file.filename;
+      }
 
-    res.status(201).json(newProd);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to add product', error: err.message });
+      newProd.id = products.length > 0
+        ? Math.max(...products.map(p => p.id || 0)) + 1
+        : 1;
+
+      products.push(newProd);
+      saveJson(fileName, products);
+
+      res.status(201).json(newProd);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to add product', error: err.message });
+    }
   }
-});
+);
 
 // 6) Fetch products by category/type (catch-all)
-router.get('/:type', (req, res) => {
+router.get('/categories/:type', (req, res) => {
   const type = req.params.type;
-
-  // Avoid conflicts with other endpoints
-  if (['product', 'categories', 'exclusives', 'types', 'test-auth'].includes(type)) {
+  if (['product', 'exclusives', 'types', 'test-auth'].includes(type)) {
     return res.status(404).json({ message: 'Not found' });
   }
 
-  const file = `${type}.json`;
-  const fullPath = path.join(dataDir, file);
+  const fileName = `${type}.json`;
+  const fullPath = path.join(dataDir, fileName);
 
   if (!fs.existsSync(fullPath)) {
     return res.status(404).json({ message: `Category "${type}" not found` });
   }
 
   try {
-    const data = loadJson(file);
-    res.json(data);
+    const data = loadJson(fileName);
+    const withStock = data.map(item => ({ ...item, stock: item.quantity }));
+    res.json(withStock);
   } catch (err) {
     res.status(500).json({ message: `Error loading "${type}"`, error: err.message });
   }
@@ -191,7 +207,6 @@ router.get('/barcode/:code', (req, res) => {
   try {
     const barcode = req.params.code;
 
-    // Get all JSON files except sales.json (products data)
     const files = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'sales.json');
 
     for (const file of files) {
@@ -199,12 +214,11 @@ router.get('/barcode/:code', (req, res) => {
       if (Array.isArray(items)) {
         const found = items.find(item => item.barcode === barcode);
         if (found) {
-          return res.json(found);
+          return res.json({ ...found, stock: found.quantity });
         }
       }
     }
 
-    // If no product found
     return res.status(404).json({ message: 'Product not found by barcode' });
   } catch (err) {
     return res.status(500).json({ message: 'Error searching product by barcode', error: err.message });
@@ -220,55 +234,48 @@ router.post('/sales/checkout', auth, (req, res) => {
       return res.status(400).json({ message: 'No items provided for checkout' });
     }
 
-    // Load all product JSON files except sales.json
     const productFiles = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'sales.json');
 
-    // Flatten all products with reference to source file
     let allProducts = [];
     for (const file of productFiles) {
       const products = loadJson(file);
       if (Array.isArray(products)) {
         products.forEach(product => {
-          allProducts.push({ ...product, _file: file });
+          allProducts.push({ ...product, _file: file, stock: product.quantity });
         });
       }
     }
 
-    // Check stock availability for each item
     for (const item of items) {
       const product = allProducts.find(p => p.id === item.id);
       if (!product) {
         return res.status(404).json({ message: `Product with ID ${item.id} not found` });
       }
-      const availableStock = product.stock || 0;
-      if (availableStock < item.quantity) {
+      if (product.stock < item.quantity) {
         return res.status(400).json({ message: `Insufficient stock for product ${product.brand || product.id}` });
       }
     }
 
-    // Deduct stock quantities
     for (const item of items) {
       const product = allProducts.find(p => p.id === item.id);
-      product.stock = (product.stock || 0) - item.quantity;
+      product.stock -= item.quantity;
     }
 
-    // Group updated products by file for saving
     const productsByFile = {};
     for (const product of allProducts) {
       if (!productsByFile[product._file]) {
         productsByFile[product._file] = [];
       }
-      // Exclude the helper _file property when saving
-      const { _file, ...productData } = product;
-      productsByFile[product._file].push(productData);
+      const { _file, stock, ...productData } = product;
+      // write updated stock back into JSON.quantity
+      productData.quantity = stock;
+      productsByFile[_file].push(productData);
     }
 
-    // Save updated products to their respective files
     for (const [file, updatedProducts] of Object.entries(productsByFile)) {
       saveJson(file, updatedProducts);
     }
 
-    // Load existing sales records or start empty array
     const salesFile = 'sales.json';
     let sales = [];
     if (fs.existsSync(path.join(dataDir, salesFile))) {
@@ -278,7 +285,6 @@ router.post('/sales/checkout', auth, (req, res) => {
       }
     }
 
-    // Calculate total amount and prepare sale items detail
     let totalAmount = 0;
     const saleItems = items.map(item => {
       const product = allProducts.find(p => p.id === item.id);
@@ -294,20 +300,17 @@ router.post('/sales/checkout', auth, (req, res) => {
       };
     });
 
-    // Prepare new sale record
     const newSale = {
       id: sales.length > 0 ? Math.max(...sales.map(s => s.id || 0)) + 1 : 1,
-      user: req.user.userId, // assuming auth middleware adds userId to req.user
+      user: req.user.userId,
       items: saleItems,
       totalAmount,
       createdAt: new Date().toISOString()
     };
 
-    // Save sale
     sales.push(newSale);
     saveJson(salesFile, sales);
 
-    // Return success with sale details
     res.status(201).json({ message: 'Checkout successful', sale: newSale });
   } catch (err) {
     res.status(500).json({ message: 'Checkout failed', error: err.message });
@@ -318,11 +321,11 @@ router.post('/sales/checkout', auth, (req, res) => {
 let PRODUCTS = [];
 
 function loadAllProducts() {
-  const dataDir = path.join(__dirname, '..', 'data');
-  const files   = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'));
+  const d = path.join(__dirname, '..', 'data');
+  const files = fs.readdirSync(d).filter((f) => f.endsWith('.json'));
 
   PRODUCTS = files.flatMap((file) => {
-    const raw = fs.readFileSync(path.join(dataDir, file), 'utf8');
+    const raw = fs.readFileSync(path.join(d, file), 'utf8');
     try {
       return JSON.parse(raw);
     } catch (e) {
@@ -334,23 +337,44 @@ function loadAllProducts() {
 
 loadAllProducts();
 
-/* ─────────────  GET /api/v1/products/barcode/:code  ───────────── */
-router.get('/barcode/:code', (req, res) => {
+// PUBLIC Men, Women, Kids section routes (NO auth, NO section check)
+router.get('/men', (req, res) => {
+  // ...existing code for men section...
+});
+router.get('/women', (req, res) => {
+  // ...existing code for women section...
+});
+router.get('/kids', (req, res) => {
+  // ...existing code for kids section...
+});
+
+// GET /products/by-section?section=men|women|kids|sale
+router.get('/by-section', (req, res) => {
+  const { section } = req.query;
+
+  if (!section || typeof section !== 'string') {
+    return res.status(400).json({ message: 'Section is required as a query parameter' });
+  }
+
   try {
-    const barcode = req.params.code;
     const files = fs.readdirSync(dataDir).filter(f => f.endsWith('.json') && f !== 'sales.json');
+    let allProducts = [];
 
-    for (const file of files) {
+    files.forEach(file => {
       const items = loadJson(file);
-      const found = items.find(item => item.barcode === barcode);
-      if (found) {
-        return res.json(found);
+      if (Array.isArray(items)) {
+        allProducts = allProducts.concat(items);
       }
-    }
+    });
 
-    return res.status(404).json({ message: 'Product not found by barcode' });
+    // Case-insensitive section matching
+    const filtered = allProducts.filter(
+      (item) => item.section && item.section.toLowerCase() === section.toLowerCase()
+    );
+
+    res.json(filtered);
   } catch (err) {
-    return res.status(500).json({ message: 'Error searching product by barcode', error: err.message });
+    res.status(500).json({ message: 'Error loading products by section', error: err.message });
   }
 });
 

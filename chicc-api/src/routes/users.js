@@ -3,8 +3,7 @@ const router = express.Router();
 const upload = require('../middleware/upload');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const auth = require('../middleware/auth');
-const { checkRole } = require('../middleware/roles');
+const { auth, checkRole } = require('../middleware/auth'); // <-- fix import
 const path = require('path');
 const fs = require('fs');
 
@@ -182,4 +181,5 @@ router.post('/', upload.single('picture'), async (req, res) => {
   }
 });
 
+module.exports = router;
 module.exports = router;
