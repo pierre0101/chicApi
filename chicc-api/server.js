@@ -41,6 +41,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://192.168.16.110:3000',
   'https://chic-lhtw.onrender.com',
+  'http://192.168.1.33:3000',
   'http://192.168.1.42:3000'
 ];
 
