@@ -1,140 +1,144 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const auth = require('../middleware/auth');
-const logger = require('../config/logger');
+// File: src/routes/auth.js
+
+const express  = require('express');
+const bcrypt   = require('bcryptjs');
+const jwt      = require('jsonwebtoken');
+const User     = require('../models/User');
+const { auth } = require('../middleware/auth');
+const logger   = require('../config/logger');
 
 const router = express.Router();
 
-// Signup
-router.post('/signup', async (req, res, next) => {
-  const { username, email, password, firstName, lastName, address } = req.body;
+/* ------------------------------------------------------------
+ * POST /auth/signup – register new user
+ * ---------------------------------------------------------- */
+router.post('/signup', async (req, res) => {
+  const {
+    username,
+    password,
+    firstName,
+    lastName,
+    email,
+    address
+  } = req.body;
 
-  if (!password || password.length < 8) {
-    return res.status(400).json({ message: 'Password must be at least 8 characters' });
+  if (!username || !password || !firstName || !lastName || !email) {
+    return res
+      .status(400)
+      .json({ message: 'Username, password, first name, last name, and email are required.' });
   }
 
   try {
-    if (await User.findOne({ $or: [{ email }, { username }] })) {
-      return res.status(400).json({ message: 'Username or email already in use' });
+    if (await User.findOne({ username })) {
+      return res.status(400).json({ message: 'User already exists.' });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, password: hashed, firstName, lastName, address });
-    await user.save();
-
-    res.status(201).json({
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      address: user.address,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      username,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      email,
+      address
     });
+
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully.' });
   } catch (err) {
-    next(err);
+    logger.error(err.message);
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 
-// Login
-router.post('/login', async (req, res, next) => {
-  const { identifier, password } = req.body;
+/* ------------------------------------------------------------
+ * POST /auth/login – authenticate, set cookie, return JWT
+ * ---------------------------------------------------------- */
+router.post('/login', async (req, res) => {
+  const identifier = req.body.username || req.body.identifier || req.body.email;
+  const { password } = req.body;
+
+  if (!identifier || !password) {
+    return res
+      .status(400)
+      .json({ message: 'Username / e-mail and password are required.' });
+  }
 
   try {
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-    const user = await User.findOne(isEmail ? { email: identifier } : { username: identifier });
+    const user = await User.findOne({
+      $or: [
+        { username: identifier },
+        { email: identifier.toLowerCase() }
+      ]
+    });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Log employee login and mark agent online
-    if (user.role === 'customer-service') {
-      logger.info(`Employee login: ${user.email} (ID: ${user._id}) at ${new Date().toISOString()}`);
-      await User.findByIdAndUpdate(user._id, { status: 'online' });
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) {
+      return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '1h' }
     );
 
-    // Set cookie with appropriate SameSite for dev vs production
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('token', token, {
       path: '/',
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure:  isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 60 * 60 * 1000,
     });
 
-    res.json({
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      address: user.address,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
+    res.json({ token });
   } catch (err) {
-    next(err);
+    logger.error(err.message);
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 
-// Logout (mark user offline)
-router.post('/logout', auth, async (req, res, next) => {
-  console.log('[LOGOUT] user:', req.user);
-  try {
-    // Mark user offline on logout
-    const result = await User.findByIdAndUpdate(req.user.userId, { status: 'offline' });
-    console.log('[LOGOUT] update result:', result);
-
-    // Clear auth cookie with matching options
-    res.clearCookie('token', {
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    });
-
-    res.json({ message: 'Logged out successfully' });
-  } catch (err) {
-    console.error('[LOGOUT] error:', err);
-    next(err);
-  }
+/* ------------------------------------------------------------
+ * POST /auth/logout – clear cookie
+ * ---------------------------------------------------------- */
+router.post('/logout', (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('token', {
+    path: '/',
+    httpOnly: true,
+    secure:  isProd,
+    sameSite: isProd ? 'none' : 'lax',
+  });
+  res.json({ message: 'Logged out successfully.' });
 });
 
-// Get current user
-router.get('/me', auth, async (req, res, next) => {
+/* ------------------------------------------------------------
+ * GET /auth/me – return current user info
+ * ---------------------------------------------------------- */
+router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
+    const user = await User.findById(req.user.userId)
+      .select('username firstName lastName email address');
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found.' });
     }
+
     res.json({
-      _id: user._id,
-      username: user.username,
+      username:  user.username,
       firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      address: user.address,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      lastName:  user.lastName,
+      email:     user.email,
+      address:   user.address
     });
   } catch (err) {
-    next(err);
+    logger.error(err);
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 

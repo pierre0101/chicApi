@@ -46,24 +46,6 @@ const UserSchema = new mongoose.Schema({
     data: Buffer,
     contentType: String
   },
-  role: {
-    type: String,
-    enum: [
-      'user',
-      'admin',
-      'manager',
-      'cashier',
-      'salesmen',
-      'stock',
-      'customer-service',
-      'merchandiser',
-      'tailor',
-      'childrens-sales',
-      'womens-sales',
-      'mens-sales'
-    ],
-    default: 'user'
-  },
   status: {
     type: String,
     enum: ['online', 'offline'],

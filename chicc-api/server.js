@@ -1,14 +1,16 @@
 // /server.js
 require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const helmet = require('helmet');
-const path = require('path');
 
-const logger = require('./src/config/logger');
-const connectDB = require('./src/config/db');
+const express      = require('express');
+const http         = require('http');
+const cors         = require('cors');
+const cookieParser = require('cookie-parser');
+const helmet       = require('helmet');
+const path         = require('path');
+const createError  = require('http-errors');
+
+const logger       = require('./src/config/logger');
+const connectDB    = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
 
 // ─── Express routes ──────────────────────────────────────────────────────────
@@ -24,8 +26,10 @@ const liveChatUserRouter = require('./src/routes/liveChatUser');
 // WebSocket
 const { setupWebSocket } = require('./src/websocket');
 
-const app = express();
+const app    = express();
 const server = http.createServer(app);
+
+// Attach WebSocket server
 setupWebSocket(server);
 
 // ─── MongoDB ─────────────────────────────────────────────────────────────────
@@ -89,4 +93,8 @@ app.use(errorHandler);
 
 // ─── Start server ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  logger.info(
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+  );
+});

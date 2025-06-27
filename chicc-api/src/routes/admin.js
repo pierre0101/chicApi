@@ -4,8 +4,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const auth = require('../middleware/auth');
-const { checkRole } = require('../middleware/roles');
+const { auth, checkRole, checkSectionAccess } = require('../middleware/auth'); // <-- fix import
 
 const router = express.Router();
 const dataDir = path.join(__dirname, '../data');
