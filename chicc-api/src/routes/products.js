@@ -319,7 +319,7 @@ let PRODUCTS = [];
 
 function loadAllProducts() {
   const dataDir = path.join(__dirname, '..', 'data');
-  const files   = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'));
+  const files = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'));
 
   PRODUCTS = files.flatMap((file) => {
     const raw = fs.readFileSync(path.join(dataDir, file), 'utf8');
@@ -353,5 +353,32 @@ router.get('/barcode/:code', (req, res) => {
     return res.status(500).json({ message: 'Error searching product by barcode', error: err.message });
   }
 });
+
+function loadAllProductsFlat() {
+  const files = fs.readdirSync(dataDir)
+    .filter(f => f.endsWith('.json') && !['products.json', 'sales.json', 'coupons.json'].includes(f));
+  let all = [];
+  files.forEach(file => {
+    try {
+      const items = loadJson(file);
+      if (Array.isArray(items)) all = all.concat(items);
+    } catch { }
+  });
+  return all;
+}
+
+router.get('/section/:section', (req, res) => {
+  try {
+    const { section } = req.params;
+    const allProducts = loadAllProductsFlat();
+    const matched = allProducts.filter(
+      p => p.section && p.section.toLowerCase() === section.toLowerCase()
+    );
+    res.json(matched);
+  } catch (err) {
+    res.status(500).json({ message: 'Error loading products by section', error: err.message });
+  }
+});
+
 
 module.exports = router;
