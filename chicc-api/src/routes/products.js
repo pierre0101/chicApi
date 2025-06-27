@@ -325,7 +325,7 @@ function loadAllProducts() {
   const files = fs.readdirSync(dataDir).filter((f) => f.endsWith('.json'));
 
   PRODUCTS = files.flatMap((file) => {
-    const raw = fs.readFileSync(path.join(d, file), 'utf8');
+    const raw = fs.readFileSync(path.join(dataDir, file), 'utf8');
     try {
       return JSON.parse(raw);
     } catch (e) {
