@@ -2,7 +2,7 @@
 
 const express = require('express');
 const Wishlist = require('../models/Wishlist');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth'); // <-- fix import
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/', auth, async (req, res, next) => {
   const { productId } = req.body;
   try {
-    const item = new Wishlist({ userId: req.userId, productId });
+    const item = new Wishlist({ userId: req.user.userId, productId }); // <-- fix here
     await item.save();
     res.status(201).json({ message: 'Added to wishlist' });
   } catch (err) {
@@ -32,7 +32,7 @@ router.get('/', auth, async (req, res, next) => {
     const { brand, type } = req.query;
 
     // Base filter on the current user
-    const filter = { userId: req.userId };
+    const filter = { userId: req.user.userId }; // <-- fix here
 
     // If filtering by product brand/type, add to the query
     if (brand) filter['product.brand'] = brand;
@@ -41,7 +41,7 @@ router.get('/', auth, async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     // Pull in product details from the Products collection
-    const items = await Wishlist.find({ userId: req.userId })
+    const items = await Wishlist.find({ userId: req.user.userId }) // <-- fix here
       .populate({
         path: 'productId',
         select: 'name type brand image price'
@@ -49,7 +49,7 @@ router.get('/', auth, async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
-    const total = await Wishlist.countDocuments({ userId: req.userId });
+    const total = await Wishlist.countDocuments({ userId: req.user.userId }); // <-- fix here
 
     // Send back just the product objects in an envelope
     res.json({
@@ -69,7 +69,7 @@ router.delete('/:productId', auth, async (req, res, next) => {
   try {
     const { productId } = req.params;
     const deleted = await Wishlist.findOneAndDelete({
-      userId: req.userId,
+      userId: req.user.userId, // <-- fix here
       productId
     });
 
