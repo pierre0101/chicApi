@@ -1,11 +1,11 @@
 // File: src/routes/auth.js
 
-const express  = require('express');
-const bcrypt   = require('bcryptjs');
-const jwt      = require('jsonwebtoken');
-const User     = require('../models/User');
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const { auth } = require('../middleware/auth');
-const logger   = require('../config/logger');
+const logger = require('../config/logger');
 
 const router = express.Router();
 
@@ -82,7 +82,11 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id },
+      {
+        userId: user._id,
+        username: user.username,
+        role: user.role // ensure your User model includes 'role'
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -91,7 +95,7 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, {
       path: '/',
       httpOnly: true,
-      secure:  isProd,
+      secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       maxAge: 60 * 60 * 1000,
     });
@@ -111,7 +115,7 @@ router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     path: '/',
     httpOnly: true,
-    secure:  isProd,
+    secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
   });
   res.json({ message: 'Logged out successfully.' });
@@ -130,11 +134,11 @@ router.get('/me', auth, async (req, res) => {
     }
 
     res.json({
-      username:  user.username,
+      username: user.username,
       firstName: user.firstName,
-      lastName:  user.lastName,
-      email:     user.email,
-      address:   user.address
+      lastName: user.lastName,
+      email: user.email,
+      address: user.address
     });
   } catch (err) {
     logger.error(err);

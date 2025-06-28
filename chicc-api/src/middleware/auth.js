@@ -19,6 +19,10 @@ const auth = (req, res, next) => {
   try {
     // 4) verify + attach
     req.user = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 👇 ADD THIS LINE to ensure req.user.id exists (for multer naming)
+    req.user.id = req.user.id || req.user._id; // support both 'id' and '_id' fields
+
     next();
   } catch {
     res.status(401).json({ message: 'Invalid token.' });
@@ -61,7 +65,7 @@ const checkSectionAccess = (section) => (req, res, next) => {
     synonyms[(s || '').trim().toLowerCase()] ||
     (s || '').trim().toLowerCase();
 
-  const userSection     = norm(req.user.section);
+  const userSection = norm(req.user.section);
   const requiredSection = norm(routeRaw);
 
   /* allow if either side is "unisex" (all) */
@@ -88,3 +92,4 @@ const checkRole = (role) => (req, res, next) => {
 };
 
 module.exports = { auth, checkSectionAccess, checkRole };
+
