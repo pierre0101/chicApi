@@ -1,17 +1,17 @@
 const multer = require('multer');
 const path = require('path');
 
-// Storage engine to save files in /public with original filenames
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../public')); // saving directly in 'public'
+    cb(null, path.join(__dirname, '../../public'));
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // save with original filename
+    const ext = path.extname(file.originalname);
+    const username = req.body.username || 'unknown'; // ensure username is available in formData
+    cb(null, `${username}${ext}`);
   }
 });
 
-// Restrict to image files only
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -21,5 +21,4 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ storage, fileFilter });
-
 module.exports = upload;

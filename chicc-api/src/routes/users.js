@@ -3,7 +3,7 @@ const router = express.Router();
 const upload = require('../middleware/upload');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const { auth, checkRole } = require('../middleware/auth'); // <-- fix import
+const { auth, checkRole } = require('../middleware/auth');
 const path = require('path');
 const fs = require('fs');
 
@@ -11,14 +11,10 @@ const fs = require('fs');
 const dataDir = path.join(__dirname, '../data');
 const salesFile = path.join(dataDir, 'sales.json');
 
-/**
- * GET /api/v1/users/available-agent
- * - Public: returns one online customer-service agent, or 404 if none
- */
 router.get('/available-agent', async (req, res, next) => {
   try {
     const agent = await User.findOne({ role: 'customer-service', status: 'online' })
-                             .select('_id firstName lastName email status');
+      .select('_id firstName lastName email status');
     if (!agent) {
       return res.status(404).json({ message: 'No user found' });
     }
@@ -109,22 +105,29 @@ router.get('/:username', async (req, res) => {
   }
 });
 
-// GET /api/v1/users/:username/avatar
 router.get('/:username/avatar', async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.params.username }).select('picture');
-    if (!user || !user.picture || !user.picture.data) {
+    const username = req.params.username;
+    const publicDir = path.join(__dirname, '../../public');
+    const files = fs.readdirSync(publicDir);
+    const userImage = files.find(f => f.startsWith(username + '_'));
+
+    if (!userImage) {
       return res.sendStatus(404);
     }
 
-    res
-      .contentType(user.picture.contentType)
-      .send(user.picture.data);
+    const imagePath = path.join(publicDir, userImage);
+    console.log('Serving avatar from:', imagePath);
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.sendFile(imagePath);
   } catch (err) {
     console.error('Error fetching user avatar:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // POST /api/v1/users
 // Create a new employee record (multipart/form-data)
@@ -157,29 +160,44 @@ router.post('/', upload.single('picture'), async (req, res) => {
       bankAccount,
       password: hashedPassword,
       role,
+      // picture field removed, no DB save
     };
-
-    if (req.file) {
-      userData.picture = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
-      };
-    }
 
     const newUser = new User(userData);
     await newUser.save();
 
-    const responseUser = newUser.toObject();
-    if (responseUser.picture) {
-      responseUser.picture = { contentType: responseUser.picture.contentType };
-    }
-
-    res.status(201).json(responseUser);
+    res.status(201).json(newUser);
   } catch (err) {
     console.error('Error creating user:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-module.exports = router;
+// POST /api/v1/users/upload-avatar
+// Upload user avatar and save it as /public/<userId>.<ext>
+router.post('/upload-avatar', auth, upload.single('avatar'), async (req, res) => {
+  try {
+    const imageUrl = `/${req.file.filename}`; // accessible via static serving
+    res.json({ message: 'Avatar uploaded successfully', imageUrl });
+  } catch (err) {
+    console.error('Error uploading avatar:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// DELETE /api/v1/users/:username
+router.delete('/:username', auth, checkRole('admin'), async (req, res) => {
+  try {
+    const username = req.params.username;
+    const deleted = await User.findOneAndDelete({ username });
+    if (!deleted) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

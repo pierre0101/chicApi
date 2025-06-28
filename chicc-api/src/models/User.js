@@ -51,6 +51,15 @@ const UserSchema = new mongoose.Schema({
     enum: ['online', 'offline'],
     default: 'offline'
   },
+  role: {
+    type: String,
+    enum: [
+      'admin', 'manager', 'cashier', 'salesmen', 'stock',
+      'customer-service', 'merchandiser', 'tailor',
+      'childrens-sales', 'womens-sales', 'mens-sales'
+    ],
+    default: 'salesmen'
+  },
   wishlist: [
     {
       type: mongoose.Schema.Types.ObjectId,
