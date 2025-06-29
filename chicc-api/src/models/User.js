@@ -56,9 +56,9 @@ const UserSchema = new mongoose.Schema({
     enum: [
       'admin', 'manager', 'cashier', 'salesmen', 'stock',
       'customer-service', 'merchandiser', 'tailor',
-      'childrens-sales', 'womens-sales', 'mens-sales'
+      'childrens-sales', 'womens-sales', 'mens-sales' ,'user'
     ],
-    default: 'salesmen'
+    default: 'user'  
   },
   wishlist: [
     {
