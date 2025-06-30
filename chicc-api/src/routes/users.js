@@ -1,3 +1,5 @@
+// /src/routes/users.js
+
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/upload');
@@ -88,20 +90,39 @@ router.get(
   }
 );
 
-// GET /api/v1/users/:username
-router.get('/:username', async (req, res) => {
+// PATCH /api/v1/users/:username
+// PATCH /api/v1/users/:username
+router.patch('/:username', async (req, res) => {
   try {
-    const username = req.params.username;
-    const user = await User.findOne({ username }).select('-password');
+    const identifier = req.params.username; // updated local variable name
+    const { password } = req.body;
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!password || password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters.' });
     }
 
-    res.json(user);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Updated to find user by username OR email
+    const user = await User.findOneAndUpdate(
+      {
+        $or: [
+          { username: identifier },
+          { email: identifier.toLowerCase() }
+        ]
+      },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'Password updated successfully.' });
   } catch (err) {
-    console.error('Error fetching user by username:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error updating password:', err);
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 
@@ -199,5 +220,10 @@ router.delete('/:username', auth, checkRole('admin'), async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.get('/test', (req, res) => {
+  res.send('Users route test working');
+});
+
 
 module.exports = router;
