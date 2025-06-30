@@ -91,7 +91,6 @@ router.get(
 );
 
 // PATCH /api/v1/users/:username
-// PATCH /api/v1/users/:username
 router.patch('/:username', async (req, res) => {
   try {
     const identifier = req.params.username; // updated local variable name
@@ -125,6 +124,22 @@ router.patch('/:username', async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 });
+
+// GET /api/v1/users/:username
+router.get('/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const user = await User.findOne({ username }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 router.get('/:username/avatar', async (req, res) => {
   try {
