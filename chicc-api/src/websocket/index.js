@@ -12,9 +12,9 @@ function cleanupClient(userId) {
 }
 
 function setupWebSocket(server) {
-  const wss = new WebSocket.Server({ server, path: '/ws' });
+  const ws = new WebSocket.Server({ server, path: '/ws' });
 
-  wss.on('connection', (ws, req) => {
+  ws.on('connection', (ws, req) => {
     const params = new URLSearchParams(req.url.split('?')[1] || '');
     const userId = params.get('userId');
     if (!userId) return ws.close(1008, 'No userId');
@@ -65,7 +65,7 @@ function setupWebSocket(server) {
 
   // ping every 30s
   const interval = setInterval(() => {
-    wss.clients.forEach(ws => {
+    ws.clients.forEach(ws => {
       if (ws.readyState !== WebSocket.OPEN) {
         cleanupClient(ws.userId);
         return ws.terminate();
@@ -74,7 +74,7 @@ function setupWebSocket(server) {
     });
   }, 30000);
 
-  wss.on('close', () => clearInterval(interval));
+  ws.on('close', () => clearInterval(interval));
 }
 
 module.exports = { setupWebSocket, clients, availableAgents };
