@@ -45,7 +45,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://192.168.16.110:3000',
   'https://chic-lhtw.onrender.com',
-  'https://chic-wheat.vercel.app/',
+  'https://chic-wheat.vercel.app',
   'http://192.168.1.42:3000'
 ];
 
