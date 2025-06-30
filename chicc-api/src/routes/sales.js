@@ -1,3 +1,4 @@
+//src/routes/sales.js
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -34,10 +35,11 @@ function readAllJsonExceptProducts() {
 const otherData = readAllJsonExceptProducts();
 
 /* helper */
-const findProductById = id => products.find(p => p._id === id);
+const findProductById = id => products.find(p => p._id == id || p.id == id);
 
 /* ────────── /checkout route ────────── */
 router.post('/checkout', auth, (req, res, next) => {   // <─ uses the function
+  console.log('POST /api/v1/sales/checkout hit');      // <--- ADDED AS REQUESTED
   const { items } = req.body;
   const userId = req.user.userId;
 

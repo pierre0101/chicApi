@@ -20,6 +20,7 @@ router.post('/signup', async (req, res) => {
     lastName,
     email,
     address
+    
   } = req.body;
 
   if (!username || !password || !firstName || !lastName || !email) {
@@ -40,7 +41,8 @@ router.post('/signup', async (req, res) => {
       firstName,
       lastName,
       email,
-      address
+      address,
+      role : "user"
     });
 
     await user.save();
