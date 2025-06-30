@@ -20,7 +20,7 @@ router.post('/signup', async (req, res) => {
     lastName,
     email,
     address
-    
+
   } = req.body;
 
   if (!username || !password || !firstName || !lastName || !email) {
@@ -42,7 +42,7 @@ router.post('/signup', async (req, res) => {
       lastName,
       email,
       address,
-      role : "user"
+      role: "user"
     });
 
     await user.save();
@@ -123,9 +123,7 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Logged out successfully.' });
 });
 
-/* ------------------------------------------------------------
- * GET /auth/me – return current user info
- * ---------------------------------------------------------- */
+// GET / auth / me – return current user info
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
@@ -136,6 +134,7 @@ router.get('/me', auth, async (req, res) => {
     }
 
     res.json({
+      _id: user._id,
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
