@@ -20,7 +20,6 @@ router.post('/signup', async (req, res) => {
     lastName,
     email,
     address
-
   } = req.body;
 
   if (!username || !password || !firstName || !lastName || !email) {
@@ -34,6 +33,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User already exists.' });
     }
 
+    // ✅ Hash password before saving (already existed)
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       username,
@@ -78,6 +78,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
+    // ✅ Compare entered password with hashed password in DB
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) {
       return res.status(400).json({ message: 'Invalid credentials.' });
@@ -87,7 +88,7 @@ router.post('/login', async (req, res) => {
       {
         userId: user._id,
         username: user.username,
-        role: user.role // ensure your User model includes 'role'
+        role: user.role
       },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
@@ -123,7 +124,7 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Logged out successfully.' });
 });
 
-// GET / auth / me – return current user info
+// GET /auth/me – return current user info
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
