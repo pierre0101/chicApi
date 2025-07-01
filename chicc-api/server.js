@@ -22,6 +22,9 @@ const adminRoutes = require('./src/routes/admin');
 const salesRouter = require('./src/routes/sales');
 const supportRouter = require('./src/routes/support');
 const liveChatUserRouter = require('./src/routes/liveChatUser');
+const resetPasswordRouter = require('./src/routes/resetPassword');
+const updatePasswordRouter = require('./src/routes/updatePassword');
+const chatbotRouter = require('./src/routes/chatbot');
 
 // WebSocket
 const { setupWebSocket } = require('./src/websocket');
@@ -87,6 +90,9 @@ app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/sales', salesRouter);
 app.use('/api/v1/support', supportRouter);
 app.use('/api/livechat', liveChatUserRouter);
+app.use('/api/reset-password', resetPasswordRouter);
+app.use('/api/update-password', updatePasswordRouter);
+app.use('/api/chatbot', chatbotRouter);
 
 // ─── Error handler ───────────────────────────────────────────────────────────
 app.use(errorHandler);
