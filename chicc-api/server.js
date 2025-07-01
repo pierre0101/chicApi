@@ -58,14 +58,14 @@ const lanRegex = /^http:\/\/192\.168\.16\.\d+:3000$/;
 app.use(
   cors({
     origin(origin, cb) {
-      if (!origin) return cb(null, true);               // non-browser tools
+      if (!origin) return cb(null, true);
       if (allowedOrigins.includes(origin) || lanRegex.test(origin)) {
         return cb(null, true);
       }
       logger.error(`CORS blocked: ${origin}`);
       cb(new Error(`Not allowed by CORS: ${origin}`));
     },
-    credentials: true,                                  // enable cookies / auth
+    credentials: true,
   })
 );
 
